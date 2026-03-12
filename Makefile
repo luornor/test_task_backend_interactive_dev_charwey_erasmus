@@ -1,6 +1,6 @@
 
 DC = docker compose
-APP = $(DC) run --rm app
+APP = $(DC) run --rm web
 
 .PHONY: build up down logs shell migrate makemigrations test install restart format clean
 
@@ -18,7 +18,7 @@ logs:
 	$(DC) logs -f
 
 restart:
-	$(DC) restart app
+	$(DC) restart web
 
 # --- Django Commands ---
 migrate:
@@ -50,4 +50,3 @@ test:
 # --- Maintenance ---
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
-

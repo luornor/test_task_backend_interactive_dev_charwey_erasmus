@@ -3,8 +3,8 @@ from django.shortcuts import get_object_or_404
 from .models import User
 
 
-def get_user(*, id: str) -> User:
-    return get_object_or_404(User, id=id)
+def get_user(*, user_id: str) -> User:
+    return get_object_or_404(User, user_id=user_id)
 
 
 

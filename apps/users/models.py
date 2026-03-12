@@ -1,5 +1,4 @@
 from django.contrib.auth.models import AbstractUser
-from django.contrib.postgres.indexes import GinIndex
 from django.db import models
 from .managers import UserManager
 from django.utils.translation import gettext_lazy as _
@@ -17,9 +16,9 @@ class BaseModel(models.Model):
         abstract = True
 
 class User(AbstractUser, BaseModel):
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, null=True, blank=True)
     username = models.CharField(max_length=255, unique=True)
-    phone_number = models.CharField(max_length=11, unique=True)
+    phone_number = models.CharField(max_length=20, unique=True, null=True, blank=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     is_staff = models.BooleanField(default=False)
@@ -30,7 +29,7 @@ class User(AbstractUser, BaseModel):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name']
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'username']
 
     class Meta:
         verbose_name = _("User")
@@ -38,7 +37,6 @@ class User(AbstractUser, BaseModel):
         indexes = [
             models.Index(fields=['email', 'is_active']),
             models.Index(fields=['phone_number', 'is_active']),
-            GinIndex(fields=['search_vector']),
         ]
 
         # Ensure at least one auth method is present
@@ -60,5 +58,3 @@ class Profile(BaseModel):
 
     def __str__(self):
         return self.user.email or self.phone_number
-
-

@@ -1,11 +1,8 @@
-from typing import Optional
-
 from django.db import transaction
 
 from .models import User
 from .utils import validate_phone_number
 from django.core.exceptions import ValidationError
-from .models import User
 import logging
 
 logger = logging.getLogger(__name__)
@@ -16,6 +13,7 @@ def register_user(
         password: str,
         first_name: str,
         last_name: str,
+        username: str | None = None,
         email: str = None,
         phone_number: str = None,
         source: str = None
@@ -36,6 +34,7 @@ def register_user(
         user = User.objects.create_user(
             email=email,
             password=password,
+            username=username,
             first_name=first_name,
             last_name=last_name,
             is_active=True
@@ -47,6 +46,7 @@ def register_user(
             email=email,
             phone_number=phone_number if phone_number else None,
             password=password,
+            username=username,
             first_name=first_name,
             last_name=last_name,
             is_active=True

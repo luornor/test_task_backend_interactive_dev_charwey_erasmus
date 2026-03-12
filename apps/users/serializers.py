@@ -1,8 +1,11 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.serializers import (
+    TokenObtainPairSerializer,
+    TokenObtainSlidingSerializer,
+    TokenRefreshSlidingSerializer,
+)
 
 from .models import Profile
 
@@ -36,12 +39,18 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
+        required=False,
+        allow_null=True,
         validators=[UniqueValidator(queryset=User.objects.all())]
     )
     username = serializers.CharField(
+        required=False,
+        allow_blank=True,
         validators=[UniqueValidator(queryset=User.objects.all())]
     )
     phone_number = serializers.CharField(
+        required=False,
+        allow_null=True,
         validators=[UniqueValidator(queryset=User.objects.all())]
     )
     password = serializers.CharField(write_only=True, min_length=8)
@@ -64,6 +73,13 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+    def validate(self, attrs):
+        email = attrs.get("email")
+        phone = attrs.get("phone_number")
+        if not email and not phone:
+            raise serializers.ValidationError("Either email or phone_number is required.")
+        return attrs
+
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
@@ -85,12 +101,29 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         return data
 
-class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    password = serializers.CharField(write_only=True)
+
+class SlidingTokenResponseSerializer(serializers.Serializer):
+    token = serializers.CharField()
+    refresh = serializers.CharField(required=False)
 
 
+class SlidingRefreshResponseSerializer(serializers.Serializer):
+    token = serializers.CharField()
 
+
+class SlidingTokenRequestSerializer(TokenObtainSlidingSerializer):
+    pass
+
+
+class SlidingRefreshRequestSerializer(TokenRefreshSlidingSerializer):
+    pass
+
+class GoogleLoginInputSerializer(serializers.Serializer):
+    id_token = serializers.CharField(help_text="The JWT ID Token returned by Google Sign-In.")
+
+
+class FacebookLoginInputSerializer(serializers.Serializer):
+    access_token = serializers.CharField(help_text="The User Access Token returned by Facebook Login SDK.")
 
 
 

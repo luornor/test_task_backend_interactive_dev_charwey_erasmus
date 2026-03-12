@@ -1,10 +1,16 @@
 from django.urls import path
-from rest_framework_simplejwt.views import (
-    TokenObtainSlidingView,
-    TokenRefreshSlidingView,
+from apps.users.apis.public import (
+    RegisterUser,
+    SlidingTokenLogin,
+    SlidingTokenRefresh,
+    GoogleLogin,
+    FacebookLogin,
 )
 
 urlpatterns = [
-    path('api/token/', TokenObtainSlidingView.as_view(), name='token_obtain'),
-    path('api/token/refresh/', TokenRefreshSlidingView.as_view(), name='token_refresh'),
+    path('token/', SlidingTokenLogin.as_view(), name='login'),
+    path('token/refresh/', SlidingTokenRefresh.as_view(), name='token_refresh'),
+    path('register/', RegisterUser.as_view(), name='register'),
+    path('login/google/', GoogleLogin.as_view(), name='google_login'),
+    path('login/facebook/', FacebookLogin.as_view(), name='facebook_login'),
 ]
